@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup">
+        <div class="popup-header">
+            <span class="popup-title">🌐 LLM Translator</span>
+            <span class="status-dot" id="status-dot"></span>
+        </div>
+
+        <!-- 方向选择 -->
+        <div class="direction-row">
+            <button class="dir-btn active" data-dir="en2zh">EN → 中</button>
+            <button class="dir-btn" data-dir="zh2en">中 → EN</button>
+            <button class="dir-btn" data-dir="auto">Auto</button>
+        </div>
+
+        <!-- 动作按钮 -->
+        <div class="action-row">
+            <button class="btn-primary" id="btn-translate-page">翻译当前页面</button>
+            <button class="btn-secondary" id="btn-remove">移除翻译</button>
+        </div>
+
+        <!-- 快速翻译 -->
+        <div class="quick-translate">
+            <textarea id="quick-input" placeholder="输入文本快速翻译... (Ctrl+Enter)"></textarea>
+            <div class="quick-output" id="quick-output"></div>
+        </div>
+
+        <!-- 设置 -->
+        <div class="settings">
+            <label>
+                后端地址
+                <input type="text" id="api-url" value="http://localhost:8000" />
+            </label>
+        </div>
+    </div>
+    <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LLM Translator - 本地AI翻译</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <!-- 顶部导航 -->
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0014.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04z"/>
+                    <path d="M18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+                </svg>
+                <span>LLM Translator</span>
+            </div>
+        </div>
+        <div class="header-center">
+            <div class="mode-tabs">
+                <button class="tab active" data-mode="text" id="tab-text">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+                    文本翻译
+                </button>
+                <button class="tab" data-mode="document" id="tab-document">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    文档翻译
+                </button>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="direction-selector" id="direction-selector">
+                <button class="dir-btn active" data-dir="en2zh">EN → 中</button>
+                <button class="dir-btn" data-dir="zh2en">中 → EN</button>
+                <button class="dir-btn" data-dir="auto">Auto</button>
+            </div>
+            <div class="status-dot" id="status-dot" title="检查连接..."></div>
+        </div>
+    </header>
+
+    <!-- 文本翻译模式 -->
+    <main class="main-content" id="text-mode">
+        <div class="translate-panel">
+            <div class="panel source-panel">
+                <div class="panel-header">
+                    <span class="panel-label">原文</span>
+                    <button class="btn-icon" id="btn-clear" title="清空">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    </button>
+                </div>
+                <textarea id="source-text" placeholder="输入或粘贴要翻译的文本..."></textarea>
+                <div class="panel-footer">
+                    <span class="char-count" id="char-count">0 字符</span>
+                    <button class="btn-translate" id="btn-translate">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+                        翻译
+                    </button>
+                </div>
+            </div>
+            <div class="panel target-panel">
+                <div class="panel-header">
+                    <span class="panel-label">译文</span>
+                    <button class="btn-icon" id="btn-copy" title="复制">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+                    </button>
+                </div>
+                <div class="target-output" id="target-text">
+                    <span class="placeholder-text">译文将显示在这里...</span>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- 文档翻译模式 -->
+    <main class="main-content hidden" id="document-mode">
+        <div class="doc-upload-area" id="doc-upload-area">
+            <div class="upload-box" id="upload-box">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.5">
+                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+                    <polyline points="17 8 12 3 7 8"/>
+                    <line x1="12" y1="3" x2="12" y2="15"/>
+                </svg>
+                <p>拖拽文件到此处，或 <label class="upload-link" for="file-input">点击选择</label></p>
+                <span class="upload-hint">支持 PDF、DOCX、TXT 格式</span>
+                <input type="file" id="file-input" accept=".pdf,.docx,.doc,.txt,.md" hidden>
+            </div>
+        </div>
+
+        <div class="doc-translate-area hidden" id="doc-translate-area">
+            <div class="doc-toolbar">
+                <div class="doc-info">
+                    <span class="doc-filename" id="doc-filename"></span>
+                    <span class="doc-segments" id="doc-segments"></span>
+                </div>
+                <div class="doc-actions">
+                    <button class="btn-translate" id="btn-doc-translate">开始翻译</button>
+                    <button class="btn-secondary" id="btn-doc-reset">重新上传</button>
+                </div>
+            </div>
+            <div class="progress-bar hidden" id="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+            <div class="doc-results" id="doc-results"></div>
+        </div>
+    </main>
+
+    <!-- Toast消息 -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="/app.js"></script>
+</body>
+</html>
