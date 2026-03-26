@@ -1,21 +1,18 @@
 """Ollama API 客户端封装"""
 import httpx
 from typing import AsyncIterator
+from . import config
 
-OLLAMA_BASE_URL = "http://localhost:11434"
-DEFAULT_MODEL = "qwen2.5:7b"
 TIMEOUT = 120.0
 
 
 async def generate(
     prompt: str,
     system: str = "",
-    model: str = DEFAULT_MODEL,
-    stream: bool = False,
-) -> str | AsyncIterator[str]:
+) -> str:
     """非流式调用Ollama，返回完整响应文本"""
     payload = {
-        "model": model,
+        "model": config.OLLAMA_MODEL,
         "prompt": prompt,
         "stream": False,
     }
@@ -23,7 +20,7 @@ async def generate(
         payload["system"] = system
 
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
-        resp = await client.post(f"{OLLAMA_BASE_URL}/api/generate", json=payload)
+        resp = await client.post(f"{config.OLLAMA_BASE_URL}/api/generate", json=payload)
         resp.raise_for_status()
         return resp.json()["response"]
 
@@ -31,11 +28,10 @@ async def generate(
 async def generate_stream(
     prompt: str,
     system: str = "",
-    model: str = DEFAULT_MODEL,
 ) -> AsyncIterator[str]:
     """流式调用Ollama，逐块yield文本片段"""
     payload = {
-        "model": model,
+        "model": config.OLLAMA_MODEL,
         "prompt": prompt,
         "stream": True,
     }
@@ -44,7 +40,7 @@ async def generate_stream(
 
     async with httpx.AsyncClient(timeout=TIMEOUT) as client:
         async with client.stream(
-            "POST", f"{OLLAMA_BASE_URL}/api/generate", json=payload
+            "POST", f"{config.OLLAMA_BASE_URL}/api/generate", json=payload
         ) as resp:
             resp.raise_for_status()
             import json as json_mod
@@ -61,7 +57,7 @@ async def check_health() -> bool:
     """检查Ollama服务是否可用"""
     try:
         async with httpx.AsyncClient(timeout=5.0) as client:
-            resp = await client.get(f"{OLLAMA_BASE_URL}/api/tags")
+            resp = await client.get(f"{config.OLLAMA_BASE_URL}/api/tags")
             return resp.status_code == 200
     except Exception:
         return False

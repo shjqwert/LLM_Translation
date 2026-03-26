@@ -1,8 +1,11 @@
-"""翻译逻辑：prompt构造、语言检测、文本分段"""
+"""翻译逻辑：prompt构造、语言检测、文本分段、多后端路由"""
 import re
 from typing import AsyncIterator
 
-from .ollama_client import generate, generate_stream
+from . import config
+from . import ollama_client
+from . import openai_client
+from . import gemini_client
 
 # ---------- Prompt模板 ----------
 SYSTEM_PROMPT = (
@@ -17,6 +20,21 @@ LANG_MAP = {
     "en": "English",
     "zh": "Chinese",
 }
+
+# ---------- Provider路由 ----------
+_PROVIDERS = {
+    "ollama": ollama_client,
+    "openai": openai_client,
+    "gemini": gemini_client,
+}
+
+
+def _get_client():
+    """根据配置返回当前使用的客户端模块"""
+    provider = config.PROVIDER
+    if provider not in _PROVIDERS:
+        raise ValueError(f"Unknown provider: {provider}. Use: {list(_PROVIDERS.keys())}")
+    return _PROVIDERS[provider]
 
 
 # ---------- 语言检测 ----------
@@ -66,7 +84,6 @@ def split_text(text: str, max_length: int = 500) -> list[str]:
         else:
             if current:
                 segments.append(current)
-            # 如果单个句子超长，直接加入
             current = s
 
     if current:
@@ -88,7 +105,8 @@ async def translate(text: str, direction: str = "auto") -> str:
     """非流式翻译，返回完整译文"""
     src, tgt = resolve_direction(text, direction)
     prompt = _build_prompt(text, src, tgt)
-    result = await generate(prompt, system=SYSTEM_PROMPT)
+    client = _get_client()
+    result = await client.generate(prompt, system=SYSTEM_PROMPT)
     return result.strip()
 
 
@@ -96,5 +114,6 @@ async def translate_stream(text: str, direction: str = "auto") -> AsyncIterator[
     """流式翻译，逐块yield译文片段"""
     src, tgt = resolve_direction(text, direction)
     prompt = _build_prompt(text, src, tgt)
-    async for chunk in generate_stream(prompt, system=SYSTEM_PROMPT):
+    client = _get_client()
+    async for chunk in client.generate_stream(prompt, system=SYSTEM_PROMPT):
         yield chunk
