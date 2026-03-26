@@ -5,20 +5,31 @@
 
 const API_BASE = 'http://localhost:8000';
 
-// 安装时创建右键菜单
+// 安装或更新时创建右键菜单
 chrome.runtime.onInstalled.addListener(() => {
-    chrome.contextMenus.create({
-        id: 'translate-selection',
-        title: '翻译选中文本',
-        contexts: ['selection'],
+    // 先清除旧菜单再创建，确保更新后也能正确注册
+    chrome.contextMenus.removeAll(() => {
+        chrome.contextMenus.create({
+            id: 'translate-selection',
+            title: '翻译选中文本',
+            contexts: ['selection'],
+        }, () => {
+            if (chrome.runtime.lastError) {
+                console.error('[LLM Translator] 菜单创建失败:', chrome.runtime.lastError);
+            } else {
+                console.log('[LLM Translator] 右键菜单已注册');
+            }
+        });
     });
 });
 
 // 右键菜单点击处理
 chrome.contextMenus.onClicked.addListener(async (info, tab) => {
+    console.log('[LLM Translator] 菜单点击:', info.menuItemId, info.selectionText?.substring(0, 50));
     if (info.menuItemId === 'translate-selection' && info.selectionText) {
         const { direction = 'auto' } = await chrome.storage.local.get('direction');
         try {
+            console.log('[LLM Translator] 发送翻译请求...');
             const resp = await fetch(`${API_BASE}/api/translate`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -28,6 +39,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
                 }),
             });
             const data = await resp.json();
+            console.log('[LLM Translator] 翻译结果:', data.translation?.substring(0, 50));
             // 发送翻译结果到content script
             chrome.tabs.sendMessage(tab.id, {
                 type: 'SHOW_TRANSLATION',
@@ -35,6 +47,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
                 translation: data.translation,
             });
         } catch (err) {
+            console.error('[LLM Translator] 翻译出错:', err);
             chrome.tabs.sendMessage(tab.id, {
                 type: 'SHOW_ERROR',
                 message: '翻译失败，请检查Ollama服务是否启动',

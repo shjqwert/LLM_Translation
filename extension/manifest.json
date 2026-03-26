@@ -28,5 +28,5 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "host_permissions": ["http://localhost:8000/*"]
+  "host_permissions": ["http://localhost:8000/*", "http://*/*", "https://*/*"]
 }
