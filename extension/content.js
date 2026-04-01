@@ -3,7 +3,7 @@
  * DOM文本提取与翻译注入
  */
 
-const API_BASE = 'http://localhost:8000';
+const API_BASE = 'http://localhost:50060';
 
 // 持续追踪鼠标位置（右键菜单关闭后selection会被清空）
 let lastMouseX = 0;
@@ -88,12 +88,14 @@ function insertTranslation(node, translation) {
 
 // 翻译单个文本
 async function translateSingle(text, direction = 'auto') {
+    console.log('[LLM Translator] 翻译:', text.substring(0, 30));
     const resp = await fetch(`${API_BASE}/api/translate`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text, direction }),
     });
     const data = await resp.json();
+    console.log('[LLM Translator] 结果:', data.translation?.substring(0, 30));
     return data.translation;
 }
 

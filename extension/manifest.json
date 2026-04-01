@@ -3,7 +3,7 @@
   "name": "LLM Translator",
   "version": "1.0.0",
   "description": "本地AI翻译 - 基于Ollama + Qwen2.5",
-  "permissions": ["activeTab", "storage", "contextMenus"],
+  "permissions": ["activeTab", "storage", "contextMenus", "notifications"],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {
@@ -28,5 +28,5 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "host_permissions": ["http://localhost:8000/*", "http://*/*", "https://*/*"]
+  "host_permissions": ["http://localhost:50060/*", "http://*/*", "https://*/*"]
 }

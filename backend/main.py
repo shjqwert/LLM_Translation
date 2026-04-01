@@ -16,24 +16,24 @@ async def lifespan(app: FastAPI):
     await cache.init_db()
 
     provider = config.PROVIDER
-    print(f"📌 当前翻译后端: {provider}")
+    print(f"[CONFIG] Current provider: {provider}")
 
     if provider == "ollama":
         healthy = await ollama_client.check_health()
         if healthy:
-            print(f"✅ Ollama service is available (model: {config.OLLAMA_MODEL})")
+            print(f"[OK] Ollama service is available (model: {config.OLLAMA_MODEL})")
         else:
-            print(f"⚠️  Ollama service is not available at {config.OLLAMA_BASE_URL}")
+            print(f"[WARN] Ollama service is not available at {config.OLLAMA_BASE_URL}")
     elif provider == "openai":
         if config.OPENAI_API_KEY:
-            print(f"✅ OpenAI API configured (model: {config.OPENAI_MODEL}, base: {config.OPENAI_BASE_URL})")
+            print(f"[OK] OpenAI API configured (model: {config.OPENAI_MODEL}, base: {config.OPENAI_BASE_URL})")
         else:
-            print("⚠️  OpenAI API Key not set! Edit backend/.env")
+            print("[WARN] OpenAI API Key not set! Edit backend/.env")
     elif provider == "gemini":
         if config.GEMINI_API_KEY:
-            print(f"✅ Gemini API configured (model: {config.GEMINI_MODEL})")
+            print(f"[OK] Gemini API configured (model: {config.GEMINI_MODEL})")
         else:
-            print("⚠️  Gemini API Key not set! Edit backend/.env")
+            print("[WARN] Gemini API Key not set! Edit backend/.env")
 
     yield
 

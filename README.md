@@ -33,13 +33,14 @@ cp backend/.env.example backend/.env
 # 编辑 backend/.env，填写API Key（使用Ollama可跳过此步）
 ```
 
-### 4. 启动后端服务
+### 4. 启动后端服务（Windows）
 ```bash
-python -m uvicorn backend.main:app --host 0.0.0.0 --port 8000
+# 双击运行 start_backend.bat，或在命令行执行
+start_backend.bat
 ```
 
 ### 5. 打开Web翻译界面
-浏览器访问 http://localhost:8000
+浏览器访问 http://127.0.0.1:50060
 
 ### 6. 安装Chrome扩展
 1. 打开 `chrome://extensions/`
